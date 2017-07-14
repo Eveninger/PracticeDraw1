@@ -46,6 +46,8 @@ public class Practice12TiebaLoadingView extends View {
         mTextPaint.setColor(Color.GREEN);
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(Color.YELLOW);
         mPaint.setDither(true);
 
         mCirclePath = new Path();
@@ -83,17 +85,11 @@ public class Practice12TiebaLoadingView extends View {
         mTextPaint.setColor(Color.GREEN);
         drawCenterText(canvas, mTextPaint, "贴");
 
-        mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(Color.YELLOW);
         calculateWavePath(mPercent);
-        canvas.save(Canvas.CLIP_SAVE_FLAG);
-        canvas.clipPath(mCirclePath);
-        canvas.drawPath(mWavePath, mPaint);
         canvas.clipPath(mWavePath);
+        canvas.drawCircle(mWidth / 2, mHeight /2, mWidth < mHeight ? mWidth / 2 : mHeight / 2, mPaint);
         mTextPaint.setColor(Color.WHITE);
         drawCenterText(canvas, mTextPaint, "贴");
-        canvas.restore();
-        invalidate();
     }
 
     private void calculateWavePath(float percent) {
