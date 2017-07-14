@@ -1,12 +1,16 @@
 package com.hencoder.hencoderpracticedraw1.practice;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 /**
  * Created by Nighter on 17/7/14.
@@ -17,9 +21,10 @@ public class Practice12TiebaLoadingView extends View {
     private Paint mPaint;
     private int mWidth;
     private int mHeight;
-    private Path mWavePath = new Path();
+    private Path mCirclePath;
+    private Path mWavePath;
 
-    private int mPercent;
+    private float mPercent;
 
     public Practice12TiebaLoadingView(Context context) {
         this(context, null, 0);
@@ -36,24 +41,55 @@ public class Practice12TiebaLoadingView extends View {
 
     private void init(Context context) {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setDither(true);
+
+        mCirclePath = new Path();
+        mWavePath = new Path();
+
         post(new Runnable() {
             @Override
             public void run() {
                 mWidth = getWidth();
                 mHeight = getHeight();
+                mCirclePath.addCircle(mWidth / 2, mHeight / 2, mWidth < mHeight ? mWidth / 2 : mHeight / 2, Path.Direction.CCW);
             }
         });
+
+        ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
+        animator.setDuration(1000);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setRepeatMode(ValueAnimator.RESTART);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mPercent = animation.getAnimatedFraction();
+                invalidate();
+            }
+        });
+        animator.setInterpolator(new LinearInterpolator());
+        animator.start();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        mPaint.setColor(Color.GREEN);
+        mPaint.setTextSize(mWidth / 2);
+        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        drawCenterText(canvas, mPaint, "贴");
+
         mPaint.setStyle(Paint.Style.FILL);
-        mPercent = (mPercent + 5) % 101;
-        calculateWavePath(mPercent / 100.0f);
-        invalidate();
+        mPaint.setColor(Color.YELLOW);
+        calculateWavePath(mPercent);
+        canvas.save(Canvas.CLIP_SAVE_FLAG);
+        canvas.clipPath(mCirclePath);
         canvas.drawPath(mWavePath, mPaint);
+        mPaint.setColor(Color.WHITE);
+        canvas.clipPath(mWavePath);
+        drawCenterText(canvas, mPaint, "贴");
+        canvas.restore();
+        invalidate();
     }
 
     private void calculateWavePath(float percent) {
@@ -75,5 +111,17 @@ public class Practice12TiebaLoadingView extends View {
         mWavePath.lineTo(mWidth, mHeight);
         mWavePath.lineTo(start, mHeight);
         mWavePath.close();
+    }
+
+    private void drawCenterText(Canvas canvas, Paint paint, String text) {
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+        float top = fontMetrics.top;
+        float bottom = fontMetrics.bottom;
+
+        int centerY = (int) ((getHeight() - top - bottom) / 2);
+
+        canvas.drawText(text, getWidth() / 2, centerY, paint);
     }
 }
