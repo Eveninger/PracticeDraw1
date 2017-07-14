@@ -18,6 +18,7 @@ import android.view.animation.LinearInterpolator;
 
 public class Practice12TiebaLoadingView extends View {
     private static final String TAG = "Practice12TiebaLoadingV";
+    private Paint mTextPaint;
     private Paint mPaint;
     private int mWidth;
     private int mHeight;
@@ -40,6 +41,10 @@ public class Practice12TiebaLoadingView extends View {
     }
 
     private void init(Context context) {
+        mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        mTextPaint.setColor(Color.GREEN);
+
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setDither(true);
 
@@ -52,6 +57,7 @@ public class Practice12TiebaLoadingView extends View {
                 mWidth = getWidth();
                 mHeight = getHeight();
                 mCirclePath.addCircle(mWidth / 2, mHeight / 2, mWidth < mHeight ? mWidth / 2 : mHeight / 2, Path.Direction.CCW);
+                mTextPaint.setTextSize(mWidth / 2);
             }
         });
 
@@ -74,10 +80,8 @@ public class Practice12TiebaLoadingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        mPaint.setColor(Color.GREEN);
-        mPaint.setTextSize(mWidth / 2);
-        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
-        drawCenterText(canvas, mPaint, "贴");
+        mTextPaint.setColor(Color.GREEN);
+        drawCenterText(canvas, mTextPaint, "贴");
 
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setColor(Color.YELLOW);
@@ -85,9 +89,9 @@ public class Practice12TiebaLoadingView extends View {
         canvas.save(Canvas.CLIP_SAVE_FLAG);
         canvas.clipPath(mCirclePath);
         canvas.drawPath(mWavePath, mPaint);
-        mPaint.setColor(Color.WHITE);
         canvas.clipPath(mWavePath);
-        drawCenterText(canvas, mPaint, "贴");
+        mTextPaint.setColor(Color.WHITE);
+        drawCenterText(canvas, mTextPaint, "贴");
         canvas.restore();
         invalidate();
     }
